@@ -16,7 +16,7 @@ var urlToData: URL {
 }
 
 
-func loadNews() {
+func loadNews(completionHandler: (()->Void)?) {
     
     let apiKey: String = "82a94e16072144418eaa6c21365bbdf2"
     let url = URL(string: "https://newsapi.org/v2/everything?q=Apple&from=2021-02-26&sortBy=popularity&apiKey=\(apiKey)")!
@@ -26,10 +26,8 @@ func loadNews() {
         if urlFile != nil {
                         
             try? FileManager.default.copyItem(at: urlFile!, to: urlToData)
-            print(urlToData)
             parseNews()
-            print(articles.count)
-            
+            completionHandler?()
         }
     }
     
