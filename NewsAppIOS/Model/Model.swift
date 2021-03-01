@@ -7,7 +7,38 @@
 
 import Foundation
 
-var articles: [Article] = []
+var articles: [Article] {
+    
+    let data = try? Data(contentsOf: urlToData)
+    if data == nil {
+        print("Data not received from server")
+        return []
+    }
+    
+    let rootDirectoryAny = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+    if rootDirectoryAny == nil {
+        print("Invalid json-file structure")
+        return []
+    }
+    
+    let rootDirectory = rootDirectoryAny as? Dictionary<String, Any>
+    if rootDirectory == nil {
+        print("Invalid json-file structure")
+        return []
+    }
+    
+    if let array = rootDirectory!["articles"] as? [Dictionary<String,Any>] {
+        
+        var returnArray: [Article] = []
+        
+        for dict in array {
+            let  newArticles = Article(dictionary: dict)
+            returnArray.append(newArticles)
+        }
+        return returnArray
+    }
+    return []
+}
 
 var urlToData: URL {
     let path = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]+"/data.json"
@@ -26,44 +57,12 @@ func loadNews(completionHandler: (()->Void)?) {
         if urlFile != nil {
                         
             try? FileManager.default.copyItem(at: urlFile!, to: urlToData)
-            parseNews()
             completionHandler?()
         }
     }
     
     downLoadTask.resume()
     
-}
-
-func parseNews() {
-
-    let data = try? Data(contentsOf: urlToData)
-    if data == nil {
-        print("Data not received from server")
-        return
-    }
-    
-    let rootDirectoryAny = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-    if rootDirectoryAny == nil {
-        print("Invalid json-file structure")
-        return
-    }
-    
-    let rootDirectory = rootDirectoryAny as? Dictionary<String, Any>
-    if rootDirectory == nil {
-        print("Invalid json-file structure")
-        return
-    }
-    
-    if let array = rootDirectory!["articles"] as? [Dictionary<String,Any>] {
-        
-        //var returnArray: [Article] = []
-        
-        for dict in array {
-            let  newArticles = Article(dictionary: dict)
-            articles.append(newArticles)
-        }
-    }
 }
 
 

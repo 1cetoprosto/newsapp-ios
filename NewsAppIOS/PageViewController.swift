@@ -9,12 +9,32 @@ import UIKit
 
 class PageViewController: UIPageViewController, UIPageViewControllerDataSource {
 
+    
+    @IBAction func pushRefreshAction(_ sender: UIBarButtonItem) {
+        loadNews {
+            self.showNewsControlers()
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.dataSource = self
-        // Do any additional setup after loading the view.
+        
+        self.showNewsControlers()
+        
+        loadNews {
+            self.showNewsControlers()
+        }
     }
 
+    func showNewsControlers() {
+        DispatchQueue.main.async {
+            if let vc = self.pageViewController(for: 0) {
+                self.setViewControllers([vc], direction: .forward, animated: true, completion: nil)
+            }
+        }
+    }
+    
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         let index = ((viewController as? OneNewsViewController)?.index ?? 0) - 1
         return self.pageViewController(for: index)
